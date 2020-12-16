@@ -13,6 +13,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const common_1 = require("@nestjs/common");
+const graphql_1 = require("@nestjs/graphql");
 const operators_1 = require("rxjs/operators");
 const common_2 = require("../common");
 const sentry_service_1 = require("./sentry.service");
@@ -33,6 +34,8 @@ let SentryInterceptor = class SentryInterceptor {
                             return this.captureRpcException(scope, context.switchToRpc(), exception);
                         case 'ws':
                             return this.captureWsException(scope, context.switchToWs(), exception);
+                        case 'graphql':
+                            return this.captureGraphqlException(scope, graphql_1.GqlExecutionContext.create(context), exception);
                     }
                 });
             }
@@ -67,6 +70,19 @@ let SentryInterceptor = class SentryInterceptor {
                 scope.setTags(this.options.tags);
         }
         this.client.instance().captureException(exception);
+    }
+    captureGraphqlException(scope, gqlContext, exception) {
+        const info = gqlContext.getInfo();
+        const context = gqlContext.getContext();
+        scope.setExtra('type', info.parentType.name);
+        if (context.req) {
+            const data = node_1.Handlers.parseRequest({}, context.req, this.options);
+            scope.setExtra('req', data.request);
+            data.extra && scope.setExtras(data.extra);
+            if (data.user)
+                scope.setUser(data.user);
+        }
+        this.captureException(scope, exception);
     }
     shouldReport(exception) {
         if (this.options && !this.options.filters)

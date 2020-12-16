@@ -11,5 +11,6 @@ export declare class SentryInterceptor implements NestInterceptor {
     private captureRpcException;
     private captureWsException;
     private captureException;
+    private captureGraphqlException;
     private shouldReport;
 }
