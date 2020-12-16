@@ -2,10 +2,8 @@ import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import { Options, Client } from '@sentry/types';
 import * as Sentry from '@sentry/node';
 
-import { SENTRY_MODULE_OPTIONS } from '../common/sentry.constants';
-import { SentryModuleOptions } from '../interfaces/sentry-options.interface';
-
-export abstract class SentryBaseService extends Logger {}
+import { SENTRY_MODULE_OPTIONS } from './sentry.constants';
+import { SentryModuleOptions } from './sentry.interfaces';
 
 @Injectable()
 export class SentryService extends Logger {

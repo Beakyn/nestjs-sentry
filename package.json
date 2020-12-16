@@ -52,8 +52,6 @@
     "testEnvironment": "node"
   },
   "devDependencies": {
-    "@nestjs/common": "^7.4.2",
-    "@nestjs/core": "^7.4.2",
     "@nestjs/testing": "^7.4.2",
     "@types/jest": "^25.1.4",
     "@types/node": "^13.7.5",
@@ -61,15 +59,16 @@
     "codecov": "^3.6.5",
     "jest": "^24.9.0",
     "prettier": "^1.19.1",
-    "reflect-metadata": "^0.1.13",
-    "rxjs": "^6.5.4",
     "supertest": "^4.0.2",
     "ts-jest": "^24.3.0",
     "tsconfig-paths": "^3.9.0",
     "typescript": "^3.8.2"
   },
   "dependencies": {
+    "@nestjs/core": "^7.4.2",
+    "@nestjs/common": "^7.4.2",
     "@nestjs/graphql": "^7.9.1",
-    "@sentry/node": "^5.12.4"
+    "@sentry/node": "^5.12.4",
+    "rxjs": "^6.5.4"
   }
 }

@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { LogLevel } from "@sentry/types";
-import { SentryModuleOptions } from '../interfaces';
-import { Injectable, Inject } from '@nestjs/common';
-import { InjectSentry } from './sentry.decorator';
+import { SentryModuleOptions } from '../sentry.interfaces';
+import { Injectable } from '@nestjs/common';
+import { InjectSentry } from '../sentry.decorator';
 import { SentryModule } from '../sentry.module';
-import { SentryService } from '../services';
+import { SentryService } from '../sentry.service';
 
 describe('InjectS3', () => {
 

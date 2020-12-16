@@ -1,10 +1,10 @@
 import { Test } from '@nestjs/testing';
 
-import { SentryModule  } from './sentry.module';
-import { SentryModuleOptions, SentryOptionsFactory } from './interfaces/sentry-options.interface';
+import { SentryModule  } from '../sentry.module';
+import { SentryModuleOptions, SentryOptionsFactory } from '../sentry.interfaces';
 import { LogLevel } from '@sentry/types';
-import { SentryService } from './services';
-import { SENTRY_TOKEN } from './common/sentry.constants';
+import { SentryService } from '../sentry.service';
+import { SENTRY_TOKEN } from '../sentry.constants';
 
 describe('SentryModule', () => {
     let config: SentryModuleOptions = {
