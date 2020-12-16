@@ -1,4 +1,5 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor, Inject } from '@nestjs/common';
+import { GqlContextType, GqlExecutionContext } from '@nestjs/graphql';
 import { Observable, TimeoutError } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { SENTRY_TOKEN, InjectSentry } from '../common';
@@ -6,7 +7,8 @@ import { SentryService } from './sentry.service';
 import { Scope } from '@sentry/hub';
 import { HttpArgumentsHost, ContextType, WsArgumentsHost, RpcArgumentsHost } from '@nestjs/common/interfaces';
 import { Handlers } from '@sentry/node';
-import { SentryInterceptorOptions, SentryFilterFunction, SentryInterceptorOptionsFilter } from '../interfaces/sentry-interceptor.interface';
+import { SentryInterceptorOptions, SentryInterceptorOptionsFilter } from '../interfaces/sentry-interceptor.interface';
+
 
 @Injectable()
 export class SentryInterceptor implements NestInterceptor {
@@ -21,7 +23,7 @@ export class SentryInterceptor implements NestInterceptor {
       tap(null, (exception) => {
         if (this.shouldReport(exception)) {
           this.client.instance().withScope((scope) => {
-            switch (context.getType<ContextType>()) {
+            switch (context.getType<GqlContextType>()) {
               case 'http':
                 return this.captureHttpException(
                   scope, 
@@ -39,6 +41,12 @@ export class SentryInterceptor implements NestInterceptor {
                   scope,
                   context.switchToWs(),
                   exception,
+                );
+              case 'graphql':
+                return this.captureGraphqlException(
+                  scope, 
+                  GqlExecutionContext.create(context), 
+                  exception
                 );
             }
           })
@@ -88,6 +96,25 @@ export class SentryInterceptor implements NestInterceptor {
     }
 
     this.client.instance().captureException(exception);
+  }
+
+  private captureGraphqlException(scope: Scope, gqlContext: GqlExecutionContext, exception: any): void {
+    const info = gqlContext.getInfo()
+    const context = gqlContext.getContext() 
+
+    scope.setExtra('type', info.parentType.name)
+
+    if (context.req) {
+      // req within graphql context needs modification in 
+      const data = Handlers.parseRequest(<any>{}, context.req, this.options);
+
+      scope.setExtra('req', data.request);
+
+      data.extra && scope.setExtras(data.extra);
+      if (data.user) scope.setUser(data.user);
+   }
+
+    this.captureException(scope, exception);
   }
 
   private shouldReport(exception: any) {
