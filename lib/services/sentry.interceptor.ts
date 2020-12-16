@@ -13,9 +13,7 @@ import { SentryInterceptorOptions, SentryInterceptorOptionsFilter } from '../int
 @Injectable()
 export class SentryInterceptor implements NestInterceptor {
 
-  constructor(
-    @InjectSentry() private readonly client: SentryService,
-    private readonly options?: SentryInterceptorOptions) {}
+  constructor(@InjectSentry() private readonly client: SentryService) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     // first param would be for events, second is for errors
@@ -87,13 +85,13 @@ export class SentryInterceptor implements NestInterceptor {
   }
 
   private captureException(scope: Scope, exception: any): void {
-    if (this.options) {
-      if (this.options.level) scope.setLevel(this.options.level);
-      if (this.options.fingerprint)
-        scope.setFingerprint(this.options.fingerprint);
-      if (this.options.extra) scope.setExtras(this.options.extra);
-      if (this.options.tags) scope.setTags(this.options.tags);
-    }
+    // if (this.options) {
+    //   if (this.options.level) scope.setLevel(this.options.level);
+    //   if (this.options.fingerprint)
+    //     scope.setFingerprint(this.options.fingerprint);
+    //   if (this.options.extra) scope.setExtras(this.options.extra);
+    //   if (this.options.tags) scope.setTags(this.options.tags);
+    // }
 
     this.client.instance().captureException(exception);
   }
@@ -110,7 +108,7 @@ export class SentryInterceptor implements NestInterceptor {
 
       scope.setExtra('req', data.request);
 
-      data.extra && scope.setExtras(data.extra);
+      if (data.extra) scope.setExtras(data.extra);
       if (data.user) scope.setUser(data.user);
    }
 
@@ -118,19 +116,20 @@ export class SentryInterceptor implements NestInterceptor {
   }
 
   private shouldReport(exception: any) {
-    if (this.options && !this.options.filters) return true;
+    return true;
+    // if (this.options && !this.options.filters) return true;
 
-    // If all filters pass, then we do not report
-    if (this.options) {
-      const opts: SentryInterceptorOptions = this.options as {}
-      if (opts.filters) {
-        let filters: SentryInterceptorOptionsFilter[] = opts.filters
-        return filters.every(({ type, filter }) => {
-          return !(exception instanceof type && (!filter || filter(exception)));
-        });
-      }
-    } else {
-      return true;
-    }
+    // // If all filters pass, then we do not report
+    // if (this.options) {
+    //   const opts: SentryInterceptorOptions = this.options as {}
+    //   if (opts.filters) {
+    //     let filters: SentryInterceptorOptionsFilter[] = opts.filters
+    //     return filters.every(({ type, filter }) => {
+    //       return !(exception instanceof type && (!filter || filter(exception)));
+    //     });
+    //   }
+    // } else {
+    //   return true;
+    // }
   }
 }
